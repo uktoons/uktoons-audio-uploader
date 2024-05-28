@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const mongoose = require('mongoose');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -60,38 +61,19 @@ app.get('/music', async (req, res) => {
     }
 });
 
+// Handle other requests by serving the index.html file
+app.get('*', (req, res) => {
+    fs.readFile(path.join(__dirname, 'public', 'index.html'), (err, data) => {
+        if (err) {
+            res.writeHead(500, { 'Content-Type': 'text/plain' });
+            res.end('500 - Internal Server Error');
+        } else {
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end(data);
+        }
+    });
+});
+
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
-});
-
-const http = require('http');
-const fs = require('fs');
-const path = require('path');
-
-// Define port
-
-// Create HTTP server
-const server = http.createServer((req, res) => {
-    // Handle requests
-    if (req.url === '/') {
-        // Read the index.html file
-        fs.readFile(path.join(__dirname, 'public', 'index.html'), (err, data) => {
-            if (err) {
-                res.writeHead(500, { 'Content-Type': 'text/plain' });
-                res.end('500 - Internal Server Error');
-            } else {
-                res.writeHead(200, { 'Content-Type': 'text/html' });
-                res.end(data);
-            }
-        });
-    } else {
-        // Handle other requests
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('404 - Not Found');
-    }
-});
-
-// Start the server
-server.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
 });
